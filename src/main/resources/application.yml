@@ -1,12 +1,12 @@
+server:
+  port: ${SERVER_PORT:9004}
+
 spring:
   application:
-    name: EventSource
+    name: EventSourceMessaging
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
 ibmq:
   apiHost: https://api.quantum-computing.ibm.com/v2
   apiToken: ${IBMQ_API_TOKEN}
-
-server:
-  port: 9004
