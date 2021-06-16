@@ -1,13 +1,14 @@
 package de.unistuttgart.iaas.messaging.eventsource.events;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import de.unistuttgart.iaas.messaging.eventsource.configuration.IBMQProperties;
+import de.unistuttgart.iaas.messaging.eventsource.messaging.EventSender;
 import de.unistuttgart.iaas.messaging.eventsource.model.Device;
 import de.unistuttgart.iaas.messaging.eventsource.model.Group;
 import de.unistuttgart.iaas.messaging.eventsource.model.Hub;
-import de.unistuttgart.iaas.messaging.eventsource.model.IBMQEventPayload;
 import de.unistuttgart.iaas.messaging.eventsource.model.Project;
 import de.unistuttgart.iaas.messaging.eventsource.model.QueueStatus;
 import de.unistuttgart.iaas.messaging.eventsource.api.IBMQClient;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EventGenerator {
 
     private final IBMQClient ibmqClient;
-    private final IBMQProperties ibmqProperties;
+    private final EventSender eventSender;
 
     @Transactional
     @Scheduled(initialDelay = 5000, fixedDelay = 300000)
@@ -37,13 +38,11 @@ public class EventGenerator {
     }
 
     private void gatherAndFireEvents() {
-        ZonedDateTime iterationTime = ZonedDateTime.now();
-
         // Add different kinds of events
-        fireQueueSizeEvents(iterationTime);
+        fireQueueSizeEvents();
     }
 
-    private void fireQueueSizeEvents(ZonedDateTime iterationTime) {
+    private void fireQueueSizeEvents() {
         List<Hub> hubs = ibmqClient.getNetworks();
 
         // Get Devices and their Queue-Status
@@ -56,8 +55,14 @@ public class EventGenerator {
                     for (Device device: project.getDevices().values()) {
                         String deviceName = device.getName();
                         QueueStatus queueStatus = ibmqClient.getQueueStatus(deviceName, hubName, groupName, projectName);
-                        IBMQEventPayload payload = new IBMQEventPayload(hubName, groupName, projectName, deviceName, ibmqProperties.getApiToken());
-                        // TODO: Put Event in Queue
+
+                        // Build Map with Event-Properties
+                        Map<String, Object> eventData = new HashMap<>();
+                        eventData.put("device", deviceName);
+                        eventData.put("type", "QUEUE_SIZE");
+                        eventData.put("queueSize", queueStatus.getLengthQueue());
+
+                        eventSender.sendEvent(eventData);
                     }
                 }
             }
