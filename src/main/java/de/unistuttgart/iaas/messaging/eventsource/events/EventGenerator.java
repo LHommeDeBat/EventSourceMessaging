@@ -62,7 +62,12 @@ public class EventGenerator {
                         eventData.put("type", "QUEUE_SIZE");
                         eventData.put("queueSize", queueStatus.getLengthQueue());
 
-                        eventSender.sendEvent(eventData);
+                        // Use simulator only for testing purposes
+                        // TODO: Remove when in production
+                        if (deviceName.equals("ibmq_qasm_simulator")) {
+                            log.info("IBMQ_QASM_SIMULATOR EVENT with QueueSize={} occured!", queueStatus.getLengthQueue());
+                            eventSender.sendEvent(eventData);
+                        }
                     }
                 }
             }
