@@ -2,6 +2,8 @@ package de.unistuttgart.iaas.messaging.eventsource.messaging;
 
 import java.util.Map;
 
+import javax.jms.MapMessage;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.core.JmsTemplate;
@@ -15,6 +17,13 @@ public class EventSender {
     private final JmsTemplate jmsTemplate;
 
     public void sendEvent(Map<String, Object> eventData) {
-        jmsTemplate.convertAndSend("EVENT.TOPIC", eventData);
+        jmsTemplate.send("EVENT.TOPIC", session -> {
+            MapMessage message = session.createMapMessage();
+            for (String key: eventData.keySet()) {
+                message.setObject(key, eventData.get(key));
+            }
+            message.setJMSReplyTo(session.createQueue("JOB.RESULT.QUEUE"));
+            return message;
+        });
     }
 }
