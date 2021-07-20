@@ -26,6 +26,10 @@ public class EventGenerator {
     private final IBMQClient ibmqClient;
     private final EventSender eventSender;
 
+    /**
+     * This method is performed on a schedule. It checks the data returned by the IBMQ-API to generate Events that can
+     * be used to execute Quantum-Applications.
+     */
     @Transactional
     @Scheduled(initialDelay = 5000, fixedDelay = 300000)
     public void gatherData() {
@@ -37,11 +41,17 @@ public class EventGenerator {
         }
     }
 
+    /**
+     * This method gathers data for all supported events and fires them one after the other.
+     */
     private void gatherAndFireEvents() {
-        // Add different kinds of events
         fireQueueSizeEvents();
+        // Future work: Add more kinds of events if/when IBMQ-Api expands in future
     }
 
+    /**
+     * This method gathers necessary data to fire QueueSize-Events
+     */
     private void fireQueueSizeEvents() {
         List<Hub> hubs = ibmqClient.getNetworks();
 
