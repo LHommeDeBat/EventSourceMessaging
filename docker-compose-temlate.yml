@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  eventsourcefilesystem:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: eventsourcefilesystem
+    ports:
+      - "9004:9004"
+    container_name: eventsourcefilesystem
+    environment:
+      - IBMQ_API_TOKEN=!!!{yourIbmApiToken}!!!
+      - SERVER_PORT=9004
+      - MESSAGING_ENABLED=true
+    hostname: eventsourcefilesystem
+    networks:
+      - quantumservicefilesystemnetwork
+
+networks:
+  quantumservicefilesystemnetwork:
+    name: quantumservicefilesystemnetwork
