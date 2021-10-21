@@ -7,6 +7,8 @@ The EventSourceMessaging is a service that communicates with the [QuantumService
 To start the service, an MQ-Instance is needed. That can be started using the docker-compose of the [QuantumServiceMessaging](https://github.com/LHommeDeBat/QuantumServiceMessaging) project.
 After the MQ-Server is running, the service can be started with **docker-compose up -d** in the root folder. That will start a **eventsourcefilesystem** container.
 
+Alternatively you can start the service locally in your IDE. In that case the **application.yml** and **application-local.yml** properties will be used during execution. Make sure to provide all necesarry env-variables in that case.
+
 ## Configuring the Queue-Size Polling-Intervall
 
 Configuration of the Polling-Intervall can be done in the **EventGenerator**-Class.
